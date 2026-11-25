@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#2F6B4F"/>
+  <!-- a cream jigsaw piece with a knob on top and on the right -->
+  <g transform="translate(-65 -15)"><path fill="#F7F3EA" d="M232 332 H432 A90 90 0 1 1 592 332 H792 V532 A90 90 0 1 1 792 692 V852 H232 V692 A90 90 0 1 0 232 532 Z"/>
+  <!-- a simple pink flower in the middle -->
+  <g transform="translate(512 592) scale(0.85)">
+    <circle cx="0" cy="-78" r="58" fill="#E58FA8"/>
+    <circle cx="74" cy="-24" r="58" fill="#E58FA8"/>
+    <circle cx="46" cy="63" r="58" fill="#E58FA8"/>
+    <circle cx="-46" cy="63" r="58" fill="#E58FA8"/>
+    <circle cx="-74" cy="-24" r="58" fill="#E58FA8"/>
+    <circle r="44" fill="#F2C14E"/>
+  </g>
+</g></svg>

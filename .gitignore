@@ -1,0 +1,17 @@
+# Family photos must NEVER go on GitHub.
+# (The app keeps added photos inside the iPad only, so they are never files here.
+#  These lines are an extra safety net in case photos are ever copied into this folder.)
+family-photos/
+my-photos/
+photos/
+private/
+*.heic
+*.HEIC
+*.png.bak
+IMG_*
+DSC_*
+PXL_*
+
+# Mac and tool clutter
+.DS_Store
+.claude/
