@@ -130,6 +130,12 @@ Creative Commons licenses that allow this use with credit.
 | `manifest.webmanifest` | Home Screen name and icon |
 | `pictures/` | Built-in pictures, with small previews in `pictures/thumbs/` |
 
+Keeping the picture list tidy:
+- **Finished Puzzles:** when she completes a puzzle, its picture moves out of the main list into a "Finished Puzzles" folder. The button for it is at the bottom of the list. Starting that picture again moves it back.
+- **Put Away:** on a built-in picture's screen, **Put Away This Picture** hides it in a "Put Away Pictures" folder. **Bring Back** returns it. Nothing is ever deleted. Put-away choices are remembered on that iPad.
+- Photos she added are removed with **Remove Photo**, which asks first.
+- To truly delete a built-in picture from the app, remove its line in `js/app.js`, delete its two files in `pictures/` and `pictures/thumbs/`, remove both from `sw.js`, bump `VERSION`, and remove its credit.
+
 How pieces behave:
 - A piece (or a joined group) dropped near its correct spot on the board locks in with a soft click and a gold glow.
 - Two loose pieces that fit together click together wherever they are on the table, and from then on move as one.

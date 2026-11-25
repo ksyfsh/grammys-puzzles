@@ -51,20 +51,25 @@
 
   <!-- ===================== 2. CHOOSE A PICTURE ===================== -->
   <section id="screen-choose" class="screen" hidden>
+    <!-- This one screen shows three lists: the main list, "Finished Puzzles", and "Put Away Pictures". -->
     <header class="bar">
-      <button class="btn btn-secondary btn-bar" type="button" data-go="home">
-        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
-        <span>Home</span>
+      <button id="choose-back" class="btn btn-secondary btn-bar" type="button">
+        <svg class="icon icon-home" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+        <svg class="icon icon-back" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M15 5l-7 7 7 7"/></svg>
+        <span id="choose-back-label">Home</span>
       </button>
-      <h2>Choose a Puzzle</h2>
+      <h2 id="choose-title">Choose a Puzzle</h2>
     </header>
     <div class="scroll-area" id="choose-scroll">
       <p id="choose-message" class="message" hidden></p>
-      <h3 class="section-title">Pictures</h3>
+      <p id="folder-hint" class="hint" hidden></p>
+      <h3 id="builtin-title" class="section-title">Pictures</h3>
       <div id="builtin-grid" class="card-grid"></div>
-      <h3 class="section-title">Your Photos</h3>
+      <h3 id="photo-title" class="section-title">Your Photos</h3>
       <div id="photo-grid" class="card-grid"></div>
       <p id="no-photos" class="hint">Photos you add with the “Add a Photo” button on the home screen will show up here.</p>
+      <!-- Big buttons that open the two folders (only shown when something is in them). -->
+      <div id="folder-buttons" class="folder-buttons"></div>
     </div>
   </section>
 

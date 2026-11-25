@@ -63,31 +63,100 @@ const App = (() => {
   // ===================================================================
   // Choose a Puzzle screen
   // ===================================================================
-  async function showChoose(message) {
+  // The Choose screen shows one of three lists:
+  //   'main'     — pictures she hasn't finished (new or in progress)
+  //   'finished' — pictures whose puzzle she has completed
+  //   'putaway'  — built-in pictures she has hidden ("Put Away")
+  // Nothing is ever deleted by moving between these lists.
+  let chooseMode = 'main';
+
+  // ---- Put Away: a small saved list of built-in picture ids she has hidden ----
+  function putAwayIds() {
+    const list = Store.getPref('putAway', []);
+    return Array.isArray(list) ? list : [];
+  }
+  function isPutAway(id) { return putAwayIds().includes(id); }
+  function setPutAway(id, away) {
+    const set = new Set(putAwayIds());
+    if (away) set.add(id); else set.delete(id);
+    Store.setPref('putAway', [...set]);
+  }
+
+  async function showChoose(message, mode = 'main') {
     freeTempUrls();
+    chooseMode = mode;
     show('choose');
     showMessage('choose-message', message || '');
+    const inFolder = mode !== 'main';
+    $('choose-title').textContent = { main: 'Choose a Puzzle', finished: 'Finished Puzzles', putaway: 'Put Away Pictures' }[mode];
+    $('choose-back-label').textContent = inFolder ? 'Back' : 'Home';
+    // (Icons are SVG drawings, which need the "hidden" attribute set directly.)
+    document.querySelector('#choose-back .icon-home').toggleAttribute('hidden', inFolder);
+    document.querySelector('#choose-back .icon-back').toggleAttribute('hidden', !inFolder);
+    $('choose-scroll').scrollTop = 0;
     await renderChoose();
   }
 
   async function renderChoose() {
+    const mode = chooseMode;
     const puzzles = await Store.getAllPuzzles().catch(() => []);
     const status = new Map(puzzles.map((p) => [p.pictureId, p.done ? 'done' : 'going']));
+    const away = new Set(putAwayIds());
 
-    const builtinGrid = $('builtin-grid');
-    builtinGrid.replaceChildren(...BUILT_IN.map((pic) => makeCard({
-      id: pic.id, name: pic.name, thumb: 'pictures/thumbs/' + pic.file, status: status.get(pic.id),
+    // Which list does each picture belong in?
+    const listFor = (id, builtIn) => {
+      if (builtIn && away.has(id)) return 'putaway';
+      return status.get(id) === 'done' ? 'finished' : 'main';
+    };
+
+    const builtins = BUILT_IN.filter((pic) => listFor(pic.id, true) === mode);
+    $('builtin-grid').replaceChildren(...builtins.map((pic) => makeCard({
+      id: pic.id, name: pic.name, thumb: 'pictures/thumbs/' + pic.file,
+      status: mode === 'main' ? status.get(pic.id) : null,
+      bringBack: mode === 'putaway',
     })));
+    $('builtin-title').hidden = builtins.length === 0;
 
-    const photos = await Store.getAllPhotos().catch(() => []);
-    photos.sort((a, b) => a.added - b.added);
-    const photoGrid = $('photo-grid');
-    photoGrid.replaceChildren(...photos.map((photo) => {
+    const allPhotos = await Store.getAllPhotos().catch(() => []);
+    allPhotos.sort((a, b) => a.added - b.added);
+    const photos = allPhotos.filter((photo) => listFor(photo.id, false) === mode);
+    $('photo-grid').replaceChildren(...photos.map((photo) => {
       const url = URL.createObjectURL(new Blob([photo.thumb], { type: 'image/jpeg' }));
       tempUrls.push(url);
-      return makeCard({ id: photo.id, name: photoName(photo), thumb: url, status: status.get(photo.id), removable: true });
+      return makeCard({
+        id: photo.id, name: photoName(photo), thumb: url,
+        status: mode === 'main' ? status.get(photo.id) : null, removable: true,
+      });
     }));
-    $('no-photos').hidden = photos.length > 0;
+    const noPhotosYet = mode === 'main' && allPhotos.length === 0;
+    $('photo-title').hidden = photos.length === 0 && !noPhotosYet;
+    $('no-photos').hidden = !noPhotosYet;
+
+    // A short note at the top of each folder.
+    let hint = '';
+    if (mode === 'finished') hint = builtins.length + photos.length
+      ? 'Puzzles you have finished. Tap one to do it again.' : 'No finished puzzles yet.';
+    if (mode === 'putaway') hint = builtins.length
+      ? 'Pictures you put away. Tap “Bring Back” to return one to the list.' : 'Nothing is put away right now.';
+    $('folder-hint').textContent = hint;
+    $('folder-hint').hidden = !hint;
+
+    // On the main list: big buttons to open the folders (only if they have something in them).
+    const folderButtons = [];
+    if (mode === 'main') {
+      const finishedCount = BUILT_IN.filter((p) => listFor(p.id, true) === 'finished').length
+        + allPhotos.filter((p) => listFor(p.id, false) === 'finished').length;
+      const awayCount = BUILT_IN.filter((p) => away.has(p.id)).length;
+      if (finishedCount) {
+        folderButtons.push(makeButton(`Finished Puzzles (${finishedCount})`, 'btn-secondary',
+          () => showChoose('', 'finished')));
+      }
+      if (awayCount) {
+        folderButtons.push(makeButton(`Put Away Pictures (${awayCount})`, 'btn-secondary',
+          () => showChoose('', 'putaway')));
+      }
+    }
+    $('folder-buttons').replaceChildren(...folderButtons);
   }
 
   function photoName(photo) {
@@ -96,7 +165,7 @@ const App = (() => {
   }
 
   /** One picture card: a big tappable picture, its name, and a status badge. */
-  function makeCard({ id, name, thumb, status, removable }) {
+  function makeCard({ id, name, thumb, status, removable, bringBack }) {
     const card = document.createElement('div');
     card.className = 'card';
 
@@ -127,6 +196,12 @@ const App = (() => {
       remove.addEventListener('click', () => askToRemove(card, id));
       card.appendChild(remove);
     }
+    if (bringBack) {
+      card.appendChild(makeButton('Bring Back', 'btn-primary btn-bring-back', () => {
+        setPutAway(id, false);
+        showChoose(`“${name}” is back in your list of puzzles.`, 'putaway');
+      }));
+    }
     return card;
   }
 
@@ -153,7 +228,7 @@ const App = (() => {
     yes.addEventListener('click', async () => {
       await Store.deletePhoto(id).catch(() => {});
       await Store.deletePuzzle(id).catch(() => {});
-      await showChoose('The photo was removed.');
+      await showChoose('The photo was removed.', chooseMode);
     });
   }
 
@@ -207,7 +282,29 @@ const App = (() => {
       paragraph(`${placed} of ${rec.pieces.length} pieces ${placed === 1 ? 'is' : 'are'} in place.`, 'note'),
       makeButton('Keep Going', 'btn-primary btn-big', () => openPuzzle(id, null)),
       makeButton('Start New Puzzle', 'btn-secondary btn-big', () => showCountChooser(id, true)),
+      ...putAwayButton(id),
     );
+  }
+
+  /**
+   * For built-in pictures: a quieter "Put Away This Picture" button (or
+   * "Bring Back This Picture" if it's already put away). Returns a list
+   * with zero or one button, so it can be added with "...".
+   * Nothing is deleted: put-away pictures wait in the "Put Away Pictures" folder.
+   */
+  function putAwayButton(id) {
+    const pic = BUILT_IN.find((p) => p.id === id);
+    if (!pic) return [];
+    if (isPutAway(id)) {
+      return [makeButton('Bring Back This Picture', 'btn-secondary', () => {
+        setPutAway(id, false);
+        showChoose(`“${pic.name}” is back in your list of puzzles.`);
+      })];
+    }
+    return [makeButton('Put Away This Picture', 'btn-secondary', () => {
+      setPutAway(id, true);
+      showChoose(`“${pic.name}” was put away. To bring it back, tap “Put Away Pictures” at the bottom of the list.`);
+    })];
   }
 
   function showCountChooser(id, replacing) {
@@ -241,6 +338,8 @@ const App = (() => {
         const rec = await Store.getPuzzle(id);
         if (rec) showKeepGoing(id, rec);
       }));
+    } else {
+      parts.push(...putAwayButton(id));
     }
     $('start-panel').replaceChildren(...parts);
   }
@@ -252,6 +351,7 @@ const App = (() => {
     const pic = await findPicture(id);
     if (!pic) { goHome(); return; }
     freeTempUrls();
+    if (isPutAway(id)) setPutAway(id, false); // playing a put-away picture brings it back
     show('puzzle');
     Store.setPref('resume', id);
     try {
@@ -357,9 +457,14 @@ const App = (() => {
     $('btn-choose').addEventListener('click', () => showChoose());
     $('btn-add-photo').addEventListener('click', chooseFromPhotos);
     $('photo-input').addEventListener('change', photosChosen);
+    // The Start screen's "Back" returns to whichever list she came from.
     document.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => {
-      if (b.dataset.go === 'home') goHome(); else showChoose();
+      if (b.dataset.go === 'home') goHome(); else showChoose('', chooseMode);
     }));
+    // The Choose screen's top-left button: "Back" inside a folder, "Home" on the main list.
+    $('choose-back').addEventListener('click', () => {
+      if (chooseMode !== 'main') showChoose(); else goHome();
+    });
 
     Store.askToKeepData();
 

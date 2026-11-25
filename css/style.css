@@ -154,6 +154,9 @@ img, canvas { -webkit-user-drag: none; user-select: none; }
 }
 .badge-done { background: #FFF3D6; border-color: #B7862A; color: #6B4C0F; }
 .card .btn { font-size: 22px; }
+.folder-buttons { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 28px; }
+.folder-buttons .btn { flex: 1 1 300px; font-size: 26px; min-height: 84px; }
+.card .btn-bring-back { font-size: 22px; }
 .confirm-box {
   border: 3px solid var(--danger); border-radius: var(--radius);
   background: var(--white); padding: 14px; display: flex; flex-direction: column; gap: 12px;
