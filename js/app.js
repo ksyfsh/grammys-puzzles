@@ -20,6 +20,15 @@ const App = (() => {
     { id: 'b-calico-cat', name: 'Calico Cat', file: 'calico-cat.jpg' },
     { id: 'b-kitten', name: 'Ginger Kitten', file: 'kitten.jpg' },
     { id: 'b-yarn', name: 'Rainbow Yarn', file: 'yarn.jpg' },
+    // Added November 2026
+    { id: 'b-robin', name: 'Robin', file: 'robin.jpg' },
+    { id: 'b-blue-tit', name: 'Blue Tit', file: 'blue-tit.jpg' },
+    { id: 'b-geese', name: 'Geese in Flight', file: 'geese.jpg' },
+    { id: 'b-giraffes', name: 'Three Giraffes', file: 'giraffes.jpg' },
+    { id: 'b-elephants', name: 'Elephants at the Water', file: 'elephants.jpg' },
+    { id: 'b-zebra', name: 'Zebra', file: 'zebra.jpg' },
+    { id: 'b-red-panda', name: 'Red Panda', file: 'red-panda.jpg' },
+    { id: 'b-giant-panda', name: 'Giant Panda', file: 'giant-panda.jpg' },
   ];
   const COUNTS = [24, 48, 70, 100, 150];
 

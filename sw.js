@@ -12,7 +12,7 @@
    twice).
    ===================================================================== */
 
-const VERSION = 'v3';
+const VERSION = 'v4';
 const CACHE_NAME = 'grammys-puzzles-' + VERSION;
 
 const FILES = [
@@ -36,6 +36,22 @@ const FILES = [
   'pictures/calico-cat.jpg',
   'pictures/kitten.jpg',
   'pictures/yarn.jpg',
+  'pictures/robin.jpg',
+  'pictures/blue-tit.jpg',
+  'pictures/geese.jpg',
+  'pictures/giraffes.jpg',
+  'pictures/elephants.jpg',
+  'pictures/zebra.jpg',
+  'pictures/red-panda.jpg',
+  'pictures/giant-panda.jpg',
+  'pictures/thumbs/robin.jpg',
+  'pictures/thumbs/blue-tit.jpg',
+  'pictures/thumbs/geese.jpg',
+  'pictures/thumbs/giraffes.jpg',
+  'pictures/thumbs/elephants.jpg',
+  'pictures/thumbs/zebra.jpg',
+  'pictures/thumbs/red-panda.jpg',
+  'pictures/thumbs/giant-panda.jpg',
   'pictures/thumbs/tulips.jpg',
   'pictures/thumbs/farm-garden.jpg',
   'pictures/thumbs/white-rose.jpg',
