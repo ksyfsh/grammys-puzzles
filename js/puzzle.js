@@ -343,8 +343,11 @@ const PuzzleScreen = (() => {
   // ===================================================================
   // The tray
   // ===================================================================
+  // A piece she has just picked up from the tray keeps its spot (P.trayHole)
+  // until she puts it down, so the other pieces don't shuffle over.
   function trayList() {
-    return P.order.map((i) => P.pieces[i]).filter((p) => p.state === 'tray' && (!P.edgeOnly || p.isEdge));
+    return P.order.map((i) => P.pieces[i])
+      .filter((p) => (p.state === 'tray' || p === P.trayHole) && (!P.edgeOnly || p.isEdge));
   }
 
   function layoutTray() {
@@ -367,6 +370,7 @@ const PuzzleScreen = (() => {
       const centerY = GUTTER + (P.portrait ? lane : step) * cell + cell / 2;
       p.trayX = centerX - canvasW / 2;
       p.trayY = centerY - canvasH / 2;
+      if (p === P.trayHole) return;   // it's in her hand: leave a blank space
       if (p.el.parentNode !== el.trayInner) el.trayInner.appendChild(p.el);
       p.el.classList.remove('loose', 'placed', 'snapped', 'settling');
       p.el.style.display = '';
@@ -402,7 +406,8 @@ const PuzzleScreen = (() => {
     const step = Math.floor((P.portrait ? lx : ly) / P.cell);
     const lane = Math.floor((P.portrait ? ly : lx) / P.cell);
     if (lane < 0 || lane > 1 || step < 0) return null;
-    return trayList()[step * 2 + lane] || null;
+    const p = trayList()[step * 2 + lane];
+    return p && p !== P.trayHole ? p : null;
   }
 
   /** Which loose piece on the table is under the finger? (Top-most first.) */
@@ -511,6 +516,7 @@ const PuzzleScreen = (() => {
     g.members = [{ p, rx: 0, ry: 0 }];
     p.state = 'held';
     p.g = p.id;
+    P.trayHole = p;
     lift();
     layoutTray();
   }
@@ -551,6 +557,7 @@ const PuzzleScreen = (() => {
     const list = g.members.map((m) => m.p);
     list.forEach((p) => p.el.classList.remove('lifted'));
     el.tray.classList.remove('drop-hover');
+    P.trayHole = null;   // she's put it down: the tray can close the gap now
 
     // A single piece dropped on the tray goes back into the tray.
     // (Joined groups stay on the table so her work isn't pulled apart.)

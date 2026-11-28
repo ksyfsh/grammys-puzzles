@@ -12,7 +12,7 @@
    twice).
    ===================================================================== */
 
-const VERSION = 'v5';
+const VERSION = 'v6';
 const CACHE_NAME = 'grammys-puzzles-' + VERSION;
 
 const FILES = [
